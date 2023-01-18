@@ -33,6 +33,10 @@ public class MessageProducer : IMessageProducer
     using (var conn = factory.CreateConnection())
     using (var channel = conn.CreateModel())
     {
+
+      channel.ExchangeDeclare(exchange: "CAPSTONE_EXCHANGE", type: ExchangeType.Direct);
+      channel.QueueDeclare("discount", durable: true, exclusive: false);
+
     //   channel.ExchangeDeclare(exchange: "CAPSTONE_EXCHANGE", type: ExchangeType.Direct);
     //   channel.QueueDeclare("discount", durable: true, exclusive: false);
 
