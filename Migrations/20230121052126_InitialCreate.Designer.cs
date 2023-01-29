@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiscountAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230115092642_InitialCreate")]
+    [Migration("20230121052126_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,30 +27,30 @@ namespace DiscountAPI.Migrations
 
             modelBuilder.Entity("DiscountAPI.Models.Discount", b =>
                 {
-                    b.Property<string>("discountId")
+                    b.Property<string>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
                         .HasDefaultValueSql("uuid_generate_v4()");
 
-                    b.Property<string>("discountName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("discountType")
-                        .HasColumnType("text");
-
-                    b.Property<float>("discountValue")
-                        .HasColumnType("real");
-
                     b.Property<DateTime>("endDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("name")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("startDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("timerId")
                         .HasColumnType("text");
 
-                    b.HasKey("discountId");
+                    b.Property<string>("type")
+                        .HasColumnType("text");
+
+                    b.Property<float>("value")
+                        .HasColumnType("real");
+
+                    b.HasKey("id");
 
                     b.ToTable("Discounts");
                 });
