@@ -17,7 +17,7 @@ public class DiscountService : IDiscountService
     await _context.SaveChangesAsync();
 
     var entry = _context.Entry(discount);
-    discount.discountId = new Guid(entry.Property("discountId").CurrentValue.ToString());
+    discount.id = entry.Property("id").CurrentValue.ToString();
     return discount;
   }
 
@@ -35,7 +35,7 @@ public class DiscountService : IDiscountService
 
   public void RemoveDiscount(Discount discount)
   {
-    var listProductsOfDiscount = _context.DiscountProducts.Where(p => p.discountId == discount.discountId);
+    var listProductsOfDiscount = _context.DiscountProducts.Where(p => p.discountId == discount.id);
     _context.DiscountProducts.RemoveRange(listProductsOfDiscount);
     _context.Discounts.Remove(discount);
     _context.SaveChanges();

@@ -1,3 +1,4 @@
+using System.Collections;
 using DiscountAPI.Models;
 namespace DiscountAPI.Services;
 
@@ -68,17 +69,23 @@ public class DiscountBackgroundService : IDiscountBackgroundService
       Console.WriteLine("StartDiscount is working with id {0}.", discountId);
 
       listDiscountProduct = _context.DiscountProducts.Where(p => p.discountId == discountId).Select(p => p.productId).ToList();
-      discountValue = _context.Discounts.Find(discountId).discountValue;
+      discountValue = _context.Discounts.Find(discountId).value;
       _context.SaveChanges();
     }
     Console.WriteLine("StartDiscount done.", discountId);
     try
     {
-      sendingMessage.eventName = "Start Discount";
-      sendingMessage.discountId = discountId;
-      sendingMessage.data = listDiscountProduct;
-      sendingMessage.value = discountValue;
-      _messageProducer.SendingMessage(sendingMessage);
+      var eventPayload = new Hashtable();
+      eventPayload.Add("event", "LAUNCH_DISCOUNT");
+      var data = new Hashtable();
+      data.Add("productIdList", listDiscountProduct );
+      data.Add("discountValue", Math.Round(discountValue, 2));
+      eventPayload.Add("data", data);
+      // sendingMessage.eventName = "LAUNCH_DISCOUNT";
+      // sendingMessage.discountId = discountId;
+      // sendingMessage.data = eventPayloadData;
+      // sendingMessage.value = discountValue;
+      _messageProducer.SendingMessage(eventPayload);
 
     }
     catch (System.Exception ex)
@@ -112,7 +119,7 @@ public class DiscountBackgroundService : IDiscountBackgroundService
       }
       Console.WriteLine("EndDiscount is working with id {0}.", discountId);
       listDiscountProduct = _context.DiscountProducts.Where(p => p.discountId == discountId).Select(p => p.productId).ToList();
-      discountValue = _context.Discounts.Find(discountId).discountValue;
+      discountValue = _context.Discounts.Find(discountId).value;
       var listProductsOfDiscount = _context.DiscountProducts.Where(p => p.discountId == discountId);
       _context.DiscountProducts.RemoveRange(listProductsOfDiscount);
       _context.SaveChanges();
@@ -120,11 +127,17 @@ public class DiscountBackgroundService : IDiscountBackgroundService
     Console.WriteLine("EndDiscount done.", discountId);
     try
     {
-      sendingMessage.eventName = "End Discount";
-      sendingMessage.discountId = discountId;
-      sendingMessage.data = listDiscountProduct;
-      sendingMessage.value = Math.Round(discountValue, 1);
-      _messageProducer.SendingMessage(sendingMessage);
+      var eventPayload = new Hashtable();
+      eventPayload.Add("event", "END_DISCOUNT");
+      var data = new Hashtable();
+      data.Add("productIdList", listDiscountProduct );
+      data.Add("discountValue", Math.Round(discountValue, 2));
+      eventPayload.Add("data", data);
+      // sendingMessage.eventName = "END_DISCOUNT";
+      // sendingMessage.discountId = discountId;
+      // sendingMessage.data = eventPayloadData;
+      // sendingMessage.value = Math.Round(discountValue, 1);
+      _messageProducer.SendingMessage(eventPayload);
 
     }
     catch (System.Exception ex)

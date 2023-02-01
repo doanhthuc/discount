@@ -9,7 +9,7 @@ public class DiscountProfile : Profile
   public DiscountProfile()
   {
     CreateMap<Discount, DiscountDTO>()
-    .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.discountId))
+    .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
     .ReverseMap();
     CreateMap<DiscountProduct, DiscountProductDTO>().ReverseMap();
   }

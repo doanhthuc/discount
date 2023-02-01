@@ -62,10 +62,10 @@ public class DiscountController : ControllerBase
     var addedDiscount = _discountService.AddDiscount(discount).Result;
 
     if (addedDiscount != null)
-      _discountProductService.AddMultipleDiscountProduct(discount.discountId, discount.listProductId);
+      _discountProductService.AddMultipleDiscountProduct(discount.id, discount.listProductId);
 
-    _discountBackgroundService.StartTime(addedDiscount.discountId, addedDiscount.startDate, addedDiscount.timerId);
-    _discountBackgroundService.EndTime(addedDiscount.discountId, addedDiscount.endDate, addedDiscount.timerId);
+    _discountBackgroundService.StartTime(addedDiscount.id, addedDiscount.startDate, addedDiscount.timerId);
+    _discountBackgroundService.EndTime(addedDiscount.id, addedDiscount.endDate, addedDiscount.timerId);
 
     return Ok(_mapper.Map<DiscountDTO>(addedDiscount));
   }
@@ -78,10 +78,11 @@ public class DiscountController : ControllerBase
     var updatedDiscount = _discountService.UpdateDiscount(discount).Result;
 
     if (updatedDiscount != null)
-      _discountProductService.AddMultipleDiscountProduct(discount.discountId, discount.listProductId);
 
-    _discountBackgroundService.StartTime(updatedDiscount.discountId, updatedDiscount.startDate, updatedDiscount.timerId);
-    _discountBackgroundService.EndTime(updatedDiscount.discountId, updatedDiscount.endDate, updatedDiscount.timerId);
+    _discountProductService.AddMultipleDiscountProduct(discount.id, discount.listProductId);
+      
+    _discountBackgroundService.StartTime(updatedDiscount.id, updatedDiscount.startDate, updatedDiscount.timerId);
+    _discountBackgroundService.EndTime(updatedDiscount.id, updatedDiscount.endDate, updatedDiscount.timerId);
 
     if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
       _messageProducer.SendingMessage(new Event()
