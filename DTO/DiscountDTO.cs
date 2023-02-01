@@ -8,6 +8,4 @@ public class DiscountDTO
   public string type { get; set; }
   public string[] listProductId { get; set; }
   public float value { get; set; }
-
- 
 }

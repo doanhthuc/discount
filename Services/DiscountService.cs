@@ -21,7 +21,7 @@ public class DiscountService : IDiscountService
     return discount;
   }
 
-  public async Task<Discount> GetDiscount(string id)
+  public async Task<Discount> GetDiscount(Guid id)
   {
     var discount = await _context.Discounts.FindAsync(id);
     return discount;

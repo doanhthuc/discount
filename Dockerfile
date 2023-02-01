@@ -1,30 +1,18 @@
-# FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as build-env
+WORKDIR /app
 
-# COPY . /app
+COPY *.csproj ./
 
-# WORKDIR /app
-
-# RUN dotnet restore
-# RUN dotnet build
-# RUN dotnet ef database update
-
-# CMD ["dotnet", "run", "--project", "MyApp.csproj", "--urls", "http://0.0.0.0:80"]
-
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
-WORKDIR /App
-
-# Copy everything
-COPY . ./
-# Restore as distinct layers
+# RUN dotnet tool install --global dotnet-ef --version 6.0
+# ENV PATH="$PATH:/root/.dotnet/tools"
 RUN dotnet restore
-RUN dotnet build
 
-# Build and publish a release
+COPY . ./
+
 RUN dotnet publish -c Release -o out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
-WORKDIR /App
-COPY --from=build-env /App/out .
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 as runtime
+WORKDIR /app
+COPY --from=build-env /app/out .
 EXPOSE 80
-ENTRYPOINT ["dotnet", "DotNet.Docker.dll"]
+ENTRYPOINT ["dotnet", "DiscountAPI.dll"]

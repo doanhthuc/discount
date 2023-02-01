@@ -3,6 +3,7 @@ using System;
 using DiscountAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiscountAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230123025446_Initital")]
+    partial class Initital
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,15 +27,21 @@ namespace DiscountAPI.Migrations
 
             modelBuilder.Entity("DiscountAPI.Models.Discount", b =>
                 {
-                    b.Property<string>("id")
+                    b.Property<Guid>("discountId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("discountName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("discountType")
+                        .HasColumnType("text");
+
+                    b.Property<float>("discountValue")
+                        .HasColumnType("real");
+
                     b.Property<DateTime>("endDate")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("name")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("startDate")
                         .HasColumnType("timestamp without time zone");
@@ -40,13 +49,7 @@ namespace DiscountAPI.Migrations
                     b.Property<string>("timerId")
                         .HasColumnType("text");
 
-                    b.Property<string>("type")
-                        .HasColumnType("text");
-
-                    b.Property<float>("value")
-                        .HasColumnType("real");
-
-                    b.HasKey("id");
+                    b.HasKey("discountId");
 
                     b.ToTable("Discounts");
                 });

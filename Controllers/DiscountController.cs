@@ -15,13 +15,15 @@ public class DiscountController : ControllerBase
   private readonly IMapper _mapper;
   private readonly IServiceProvider _serviceProvider;
   private readonly IDiscountBackgroundService _discountBackgroundService;
+  private readonly IMessageProducer _messageProducer;
 
   public DiscountController(
     IDiscountService discountService,
     IDiscountProductService discountProductService,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IDiscountBackgroundService discountBackgroundService
+    IDiscountBackgroundService discountBackgroundService,
+    IMessageProducer messageProducer
     )
   {
     _discountService = discountService;
@@ -29,6 +31,7 @@ public class DiscountController : ControllerBase
     _mapper = mapper;
     _serviceProvider = serviceProvider;
     _discountBackgroundService = discountBackgroundService;
+    _messageProducer = messageProducer;
   }
 
   [HttpGet]
@@ -41,7 +44,7 @@ public class DiscountController : ControllerBase
   }
 
   [HttpGet("{id}")]
-  public ActionResult<IEnumerable<Discount>> GetDiscount(string id)
+  public ActionResult<IEnumerable<Discount>> GetDiscount(Guid id)
   {
     var discount = _discountService.GetDiscount(id).Result;
     if (discount == null) return NotFound();
@@ -75,16 +78,25 @@ public class DiscountController : ControllerBase
     var updatedDiscount = _discountService.UpdateDiscount(discount).Result;
 
     if (updatedDiscount != null)
-      _discountProductService.AddMultipleDiscountProduct(discount.id, discount.listProductId);
+
+    _discountProductService.AddMultipleDiscountProduct(discount.id, discount.listProductId);
       
     _discountBackgroundService.StartTime(updatedDiscount.id, updatedDiscount.startDate, updatedDiscount.timerId);
     _discountBackgroundService.EndTime(updatedDiscount.id, updatedDiscount.endDate, updatedDiscount.timerId);
 
+    if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
+      _messageProducer.SendingMessage(new Event()
+      {
+        eventName = "Update a Discount",
+        discountId = discount.discountId,
+        data = discount.listProductId,
+        value = discount.discountValue
+      });
     return Ok(_mapper.Map<DiscountDTO>(updatedDiscount));
   }
 
   [HttpDelete("{discountId}")]
-  public ActionResult DeleteDiscount(string discountId)
+  public ActionResult DeleteDiscount(Guid discountId)
   {
     var discountToDelete = _discountService.GetDiscount(discountId).Result;
 
