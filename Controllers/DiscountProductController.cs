@@ -11,132 +11,120 @@ namespace DiscountAPI.Controllers;
 [Route("[controller]")]
 public class DiscountProductController : ControllerBase
 {
-    private readonly IDiscountProductService _discountProductService;
-    private readonly IDiscountService _discountService;
-    private readonly IMessageProducer _messageProducer;
-    private readonly IMapper _mapper;
 
-    public DiscountProductController(
-    IDiscountProductService discountProductService,
-    IDiscountService discountService,
-    IMessageProducer messageProducer,
-    IMapper mapper)
-    {
-        _discountProductService = discountProductService;
-        _mapper = mapper;
-        _discountService = discountService;
-        _messageProducer = messageProducer;
-    }
+  private readonly IDiscountProductService _discountProductService;
+  private readonly IDiscountService _discountService;
+  private readonly IMessageProducer _messageProducer;
+  private readonly IMapper _mapper;
 
-    [HttpGet]
-    public ActionResult GetDiscountProducts()
-    {
-        var listDiscountProduct = _discountProductService.GetDiscountProducts().Result;
+  public DiscountProductController(
+  IDiscountProductService discountProductService,
+  IDiscountService discountService,
+  IMessageProducer messageProducer,
+  IMapper mapper)
+  {
+    _discountProductService = discountProductService;
+    _mapper = mapper;
+    _discountService = discountService;
+    _messageProducer = messageProducer;
+  }
 
-        if (listDiscountProduct == null) return NotFound();
-        return Ok(_mapper.Map<IEnumerable<DiscountProductDTO>>(listDiscountProduct));
-    }
+  [HttpGet]
+  public ActionResult GetDiscountProducts()
+  {
+    var listDiscountProduct = _discountProductService.GetDiscountProducts().Result;
 
-    [HttpGet("product/{productId}")]
-    public ActionResult GetDiscountOfProduct(string productId)
-    {
-        var discountOfProduct = _discountProductService.GetDiscountOfProduct(productId).Result;
+    if (listDiscountProduct == null) return NotFound();
+    return Ok(_mapper.Map<IEnumerable<DiscountProductDTO>>(listDiscountProduct));
+  }
 
-        if (discountOfProduct == null) return NotFound();
-        return Ok(discountOfProduct);
-    }
+  [HttpGet("product/{productId}")]
+  public ActionResult GetDiscounOfProduct(Guid productId)
+  {
+    var discountOfProduct = _discountProductService.GetDiscountOfProduct(productId).Result;
 
-    [HttpGet("discount/{discountId}")]
-    public ActionResult GetProductsOfDiscount(string discountId)
-    {
-        var productsOfDiscount = _discountProductService.GetProductsOfDiscount(discountId);
+    if (discountOfProduct == Guid.Empty) return NotFound();
+    return Ok(discountOfProduct);
+  }
 
-        if (productsOfDiscount == null) return NotFound();
-        return Ok(productsOfDiscount);
-    }
-    [HttpPost]
-    public ActionResult CreateDiscountProduct(DiscountProductDTO discountProductDTO)
-    {
-        var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
+  [HttpGet("discount/{discountId}")]
+  public ActionResult GetProductsOfDiscount(Guid discountId)
+  {
+    var productsOfDiscount = _discountProductService.GetProductsOfDiscount(discountId);
 
-        var checkDiscountExist = _discountService.GetDiscount(discountProduct.discountId).Result;
-        var checkDiscountOfProductExist = _discountProductService.GetDiscountOfProduct(discountProduct.productId).Result;
+    if (productsOfDiscount == null) return NotFound();
+    return Ok(productsOfDiscount);
+  }
+  [HttpPost]
+  public ActionResult CreateDiscountProduct(DiscountProductDTO discountProductDTO)
+  {
+    var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
 
-        if (checkDiscountExist == null) return NotFound("DiscountId not found");
-        if (checkDiscountOfProductExist != null) return BadRequest("Product already had discount");
+    var checkDiscountExist = _discountService.GetDiscount(discountProduct.discountId).Result;
+    var checkDiscountOfProductExist = _discountProductService.GetDiscountOfProduct(discountProduct.productId).Result;
 
-        var addedDiscountProduct = _discountProductService.AddDiscountProduct(discountProduct).Result;
+    if (checkDiscountExist == null) return NotFound("DiscountId not found");
+    if (checkDiscountOfProductExist != Guid.Empty) return BadRequest("Product already had discount");
 
-        var discount = _discountService.GetDiscount(discountProduct.discountId).Result;
+    var addedDiscountProduct = _discountProductService.AddDiscountProduct(discountProduct).Result;
 
-        if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
-        {
-            var eventPayloadData = new Hashtable();
-            eventPayloadData.Add("productIdList", discount.listProductId);
-            eventPayloadData.Add("discountValue", discount.value);
-            _messageProducer.SendingMessage(new Event()
-            {
-                eventName = "Add a Discount Product",
-                // discountId = discount.discountId,
-                data = eventPayloadData,
-                // value = discount.discountValue
-            });
-        }
-        return Ok(_mapper.Map<DiscountProductDTO>(addedDiscountProduct));
-    }
+    var discount = _discountService.GetDiscount(discountProduct.discountId).Result;
+    
+    if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
+      _messageProducer.SendingMessage(new Event()
+      {
+        eventName = "Add a Discount Product",
+        data = addedDiscountProduct.productId,
+      });
+
+    return Ok(_mapper.Map<DiscountProductDTO>(addedDiscountProduct));
+  }
 
 
-    //Update DiscountId Of a Product
-    [HttpPut]
-    public ActionResult UpdateDiscountProduct(DiscountProductDTO discountProductDTO)
-    {
-        var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
+  //Update DiscountId Of a Product
+  [HttpPut]
+  public ActionResult UpdateDiscountProduct(DiscountProductDTO discountProductDTO)
+  {
+    var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
 
-        var checkDiscountExist = _discountService.GetDiscount(discountProduct.discountId).Result;
-        var checkDiscountOfProductExist = _discountProductService.GetDiscountOfProduct(discountProduct.productId).Result;
+    var checkDiscountExist = _discountService.GetDiscount(discountProduct.discountId).Result;
 
-        if (checkDiscountExist == null) return NotFound("DiscountId not found");
+    if (checkDiscountExist == null) return NotFound("DiscountId not found");
 
-        var updatedDiscountProduct = _discountProductService.UpdateDiscountProduct(discountProduct).Result;
+    var updatedDiscountProduct = _discountProductService.UpdateDiscountProduct(discountProduct).Result;
 
-        var discount = _discountService.GetDiscount(discountProduct.discountId).Result;
+    var discount = _discountService.GetDiscount(discountProduct.discountId).Result;
 
-        if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
-        {
-            var eventPayloadData = new Hashtable();
-            eventPayloadData.Add("productIdList", discount.listProductId);
-            eventPayloadData.Add("discountValue", discount.value);
-            _messageProducer.SendingMessage(new Event()
-            {
-                eventName = "Update a Discount Product",
-                // discountId = discount.discountId,
-                data = eventPayloadData,
-                // value = discount.discountValue
-            });
-        }
-        return Ok(_mapper.Map<DiscountProductDTO>(updatedDiscountProduct));
-    }
-    [HttpDelete]
-    public ActionResult DeleteSingleDiscountProduct(DiscountProductDTO discountProductDTO)
-    {
-        var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
+    if (discount.startDate < DateTime.Now && discount.endDate > DateTime.Now)
+      _messageProducer.SendingMessage(new Event()
+      {
+        eventName = "Update a Discount Product",
+        data = discountProduct.productId,
+      });
+    return Ok(_mapper.Map<DiscountProductDTO>(updatedDiscountProduct));
+  }
+  [HttpDelete]
+  public ActionResult DeleteSingleDiscountProduct(DiscountProductDTO discountProductDTO)
+  {
+    var discountProduct = _mapper.Map<DiscountProduct>(discountProductDTO);
 
-        var checkDiscountProductExist = _discountProductService.GetSingleDiscountProduct(discountProduct).Result;
+    var checkDiscountProductExist = _discountProductService.GetSingleDiscountProduct(discountProduct).Result;
 
-        if (checkDiscountProductExist == null) return NotFound("DiscountProduct not found");
+    if (checkDiscountProductExist == null) return NotFound("DiscountProduct not found");
 
-        _discountProductService.RemoveSingleDiscountProduct(discountProduct);
+    _discountProductService.RemoveSingleDiscountProduct(discountProduct);
 
-        return Ok("Delete succeeded");
-    }
+    return Ok("Delete succeeded");
+  }
 
-    [HttpDelete("all")]
-    public ActionResult DeleteAllDiscountProducts()
-    {
+  [HttpDelete("all")]
+  public ActionResult DeleteAllDiscountProducts()
+  {
 
-        _discountProductService.RemoveAllDiscountProduct();
+    _discountProductService.RemoveAllDiscountProduct();
 
-        return Ok("Delete succeeded");
-    }
+    return Ok("Delete succeeded");
+  }
+
 
 }

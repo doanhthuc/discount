@@ -75,6 +75,7 @@ public class DiscountBackgroundService : IDiscountBackgroundService
     Console.WriteLine("StartDiscount done.", discountId);
     try
     {
+
       var eventPayload = new Hashtable();
       eventPayload.Add("event", "LAUNCH_DISCOUNT");
       var data = new Hashtable();
@@ -82,10 +83,11 @@ public class DiscountBackgroundService : IDiscountBackgroundService
       data.Add("discountValue", Math.Round(discountValue, 2));
       eventPayload.Add("data", data);
       // sendingMessage.eventName = "LAUNCH_DISCOUNT";
-      // sendingMessage.discountId = discountId;
+
       // sendingMessage.data = eventPayloadData;
-      // sendingMessage.value = discountValue;
+
       _messageProducer.SendingMessage(eventPayload);
+
 
     }
     catch (System.Exception ex)
@@ -127,6 +129,7 @@ public class DiscountBackgroundService : IDiscountBackgroundService
     Console.WriteLine("EndDiscount done.", discountId);
     try
     {
+
       var eventPayload = new Hashtable();
       eventPayload.Add("event", "END_DISCOUNT");
       var data = new Hashtable();
@@ -134,10 +137,11 @@ public class DiscountBackgroundService : IDiscountBackgroundService
       data.Add("discountValue", Math.Round(discountValue, 2));
       eventPayload.Add("data", data);
       // sendingMessage.eventName = "END_DISCOUNT";
-      // sendingMessage.discountId = discountId;
+
       // sendingMessage.data = eventPayloadData;
-      // sendingMessage.value = Math.Round(discountValue, 1);
+
       _messageProducer.SendingMessage(eventPayload);
+
 
     }
     catch (System.Exception ex)
