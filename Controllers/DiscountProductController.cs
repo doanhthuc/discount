@@ -72,9 +72,7 @@ public class DiscountProductController : ControllerBase
       _messageProducer.SendingMessage(new Event()
       {
         eventName = "Add a Discount Product",
-        discountId = discount.discountId,
         data = addedDiscountProduct.productId,
-        value = discount.discountValue
       });
 
     return Ok(_mapper.Map<DiscountProductDTO>(addedDiscountProduct));
@@ -99,9 +97,7 @@ public class DiscountProductController : ControllerBase
       _messageProducer.SendingMessage(new Event()
       {
         eventName = "Update a Discount Product",
-        discountId = discount.discountId,
         data = discountProduct.productId,
-        value = discount.discountValue
       });
     return Ok(_mapper.Map<DiscountProductDTO>(updatedDiscountProduct));
   }

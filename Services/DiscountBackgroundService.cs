@@ -75,9 +75,7 @@ public class DiscountBackgroundService : IDiscountBackgroundService
     try
     {
       sendingMessage.eventName = "Start Discount";
-      sendingMessage.discountId = discountId;
       sendingMessage.data = listDiscountProduct;
-      sendingMessage.value = discountValue;
       _messageProducer.SendingMessage(sendingMessage);
 
     }
@@ -121,9 +119,7 @@ public class DiscountBackgroundService : IDiscountBackgroundService
     try
     {
       sendingMessage.eventName = "End Discount";
-      sendingMessage.discountId = discountId;
       sendingMessage.data = listDiscountProduct;
-      sendingMessage.value = Math.Round(discountValue, 1);
       _messageProducer.SendingMessage(sendingMessage);
 
     }
