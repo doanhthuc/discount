@@ -65,7 +65,7 @@ public class DiscountProductService : IDiscountProductService
       .AsNoTracking()
       .FirstOrDefaultAsync(p => p.discountId == discountProduct.discountId && p.productId == discountProduct.productId);
 
-    return discountProductInDb;
+    return discountProductInDb!;
   }
 
 
@@ -93,6 +93,4 @@ public class DiscountProductService : IDiscountProductService
     _context.DiscountProducts.Remove(discountProduct);
     _context.SaveChanges();
   }
-
-
 }

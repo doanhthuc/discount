@@ -18,11 +18,6 @@ public class MessageProducer : IMessageProducer
   {
     var factory = new ConnectionFactory()
     {
-      // HostName = "shark.rmq.cloudamqp.com",
-      // UserName = "etanosez",
-      // Password = "xMAGhBCpEIOUcEFPJjCAMYuHpOnX9pph",
-      // Port = 5672,
-      // VirtualHost = "etanosez"
       HostName = _config.GetSection("RabbitMQConnectionStrings")["Hostname"],
       UserName = _config.GetSection("RabbitMQConnectionStrings")["Username"],
       Password = _config.GetSection("RabbitMQConnectionStrings")["Password"],
@@ -33,14 +28,14 @@ public class MessageProducer : IMessageProducer
     using (var conn = factory.CreateConnection())
     using (var channel = conn.CreateModel())
     {
-      channel.ExchangeDeclare(exchange: "CAPSTONE_EXCHANGE", type: ExchangeType.Direct);
-      channel.QueueDeclare("discount", durable: true, exclusive: false);
+    //   channel.ExchangeDeclare(exchange: "CAPSTONE_EXCHANGE", type: ExchangeType.Direct);
+    //   channel.QueueDeclare("discount", durable: true, exclusive: false);
 
       var jsonString = JsonSerializer.Serialize(message);
 
       var body = Encoding.UTF8.GetBytes(jsonString);
 
-      channel.BasicPublish("CAPSTONE_EXCHANGE", "discount", body: body);
+      channel.BasicPublish("CAPSTONE_EXCHANGE", "DISCOUNT_SERVICE", body: body);
 
       Console.WriteLine("SendingMessage Done");
     }

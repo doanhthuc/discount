@@ -1,3 +1,4 @@
+using System.Collections;
 using AutoMapper;
 using DiscountAPI.DTO;
 using DiscountAPI.Models;
@@ -10,6 +11,7 @@ namespace DiscountAPI.Controllers;
 [Route("[controller]")]
 public class DiscountProductController : ControllerBase
 {
+
   private readonly IDiscountProductService _discountProductService;
   private readonly IDiscountService _discountService;
   private readonly IMessageProducer _messageProducer;
@@ -123,5 +125,6 @@ public class DiscountProductController : ControllerBase
 
     return Ok("Delete succeeded");
   }
+
 
 }
